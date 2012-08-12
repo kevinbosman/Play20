@@ -99,6 +99,19 @@ public class EbeanPlugin extends Plugin {
     }
     
     /**
+     * Clear out the Ebean server caches to prevent cache conflicts when
+     * restarting within a JVM session (eg when recompiling while running).
+     * Also reduces Ebean-related memory leaks.
+     */
+    @Override
+    public void onStop() {
+        if (!servers.isEmpty()) {
+            for (EbeanServer server: servers.values())
+                server.getServerCacheManager().clearAll();
+        }
+    }
+
+    /**
      * Helper method that generates the required evolution to properly run Ebean.
      */
     public static String generateEvolutionScript(EbeanServer server, ServerConfig config) {
